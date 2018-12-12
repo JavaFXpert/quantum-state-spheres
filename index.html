@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<!--
+  Copyright 2019 the original author or authors.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  TODO:
+    []
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8"/>
+    <!--meta property="twitter:image" content="https://javafxpert.github.io/grok-bloch/images/bloch-sphere.png"-->
+    <title>v0.01 Quantum state spheres</title>
+    <!--- Link to the last version of BabylonJS --->
+    <!-- script src="https://cdn.babylonjs.com/babylon.js"></script -->
+    <script src="js/thirdparty/babylon.js"></script>
+    <script src="js/thirdparty/babylon.gui.min.js"></script>
+    <script src="js/thirdparty/math.min.js"></script>
+    <script src="js/qsphere.js"></script>
+    <script src="js/hamming.js"></script>
+    <script src="js/qutil.js"></script>
+    <script src="js/blochsphere.js"></script>
+    <script src="js/quantumphasedisk.js"></script>
+    <script src="js/gate.js"></script>
+    <style>
+        html, body {
+            overflow: hidden;
+            width   : 100%;
+            height  : 100%;
+            margin  : 0;
+            padding : 0;
+        }
+
+        #renderCanvas {
+            width   : 100%;
+            height  : 100%;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body>
+<canvas id="renderCanvas"></canvas>
+<script>
+    window.addEventListener('DOMContentLoaded', function(){
+        let thisEndpointShapeType = 0;
+        let thisCurrentVector = math.matrix([
+            math.complex(0, 0),
+            math.complex(1 / math.sqrt(2), 0),
+            math.complex(-1 / math.sqrt(2), 0),
+            math.complex(0, 0)
+        ]);
+        let thisShowBasisStates = false;
+
+        let qSphere = null;
+
+        const blochSphereArray = [];
+        const numBlochSpheres = 3;
+
+        // get the canvas DOM element
+        const canvas = document.getElementById('renderCanvas');
+
+        // load the 3D engine
+        const engine = new BABYLON.Engine(canvas, true);
+
+        // createScene function that creates and return the scene
+        const createScene = function(){
+            // Create the scene space
+            const scene = new BABYLON.Scene(engine);
+
+            qSphere = new QSphere("qSphere", scene, thisCurrentVector, 0);
+
+            for (let idx = 0; idx < numBlochSpheres; idx++) {
+                blochSphereArray.push(new BlochSphere("blochSphere", scene, 0, 0));
+            }
+
+            BABYLON.SceneOptimizer.OptimizeAsync(scene);
+
+            scene.clearColor = new BABYLON.Color3( .75, .75, .75);
+
+            // Add a camera to the scene and attach it to the canvas
+            const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2.5, Math.PI / 2.5, 6, new BABYLON.Vector3(0, 0, 0), scene);
+            camera.attachControl(canvas, true);
+
+            // Add lights to the scene
+            const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(-3, 7, 1), scene);
+
+            const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+            /////// Gates panel
+            var leftPanel = new BABYLON.GUI.StackPanel();
+            leftPanel.width = "250px";
+            leftPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            leftPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            advancedTexture.addControl(leftPanel);
+
+            var rightPanel = new BABYLON.GUI.StackPanel();
+            rightPanel.width = "100px";
+            rightPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            rightPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            advancedTexture.addControl(rightPanel);
+
+            // TODO: Move these into styles
+            var buttonSize = "65px";
+            var paddingTop = "10px";
+
+            var xGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/x-gate.png");
+            xGateBtn.paddingTop = paddingTop;
+            xGateBtn.width = buttonSize;
+            xGateBtn.height = buttonSize;
+            xGateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.X);
+                blochSphere.applyGate(Gate.X);
+                updateQuantumStateDisplay();
+            });
+            leftPanel.addControl(xGateBtn);
+
+            var yGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/y-gate.png");
+            yGateBtn.paddingTop = paddingTop;
+            yGateBtn.width = buttonSize;
+            yGateBtn.height = buttonSize;
+            yGateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.Y);
+                blochSphere.applyGate(Gate.Y);
+                updateQuantumStateDisplay();
+            });
+            leftPanel.addControl(yGateBtn);
+
+            var zGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/z-gate.png");
+            zGateBtn.paddingTop = paddingTop;
+            zGateBtn.width = buttonSize;
+            zGateBtn.height = buttonSize;
+            zGateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.Z);
+                blochSphere.applyGate(Gate.Z);
+                updateQuantumStateDisplay();
+            });
+            leftPanel.addControl(zGateBtn);
+
+            var hGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/h-gate.png");
+            hGateBtn.paddingTop = paddingTop;
+            hGateBtn.width = buttonSize;
+            hGateBtn.height = buttonSize;
+            hGateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.H);
+                blochSphere.applyGate(Gate.H);
+                updateQuantumStateDisplay();
+            });
+            leftPanel.addControl(hGateBtn);
+
+            const rxPi8GateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/rx-pi8-gate.png");
+            rxPi8GateBtn.paddingTop = paddingTop;
+            rxPi8GateBtn.width = buttonSize;
+            rxPi8GateBtn.height = buttonSize;
+            rxPi8GateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.RxPi8);
+                blochSphere.applyGate(Gate.RxPi8);
+                updateQuantumStateDisplay();
+            });
+            leftPanel.addControl(rxPi8GateBtn);
+
+            const ryPi8GateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/ry-pi8-gate.png");
+            ryPi8GateBtn.paddingTop = paddingTop;
+            ryPi8GateBtn.width = buttonSize;
+            ryPi8GateBtn.height = buttonSize;
+            ryPi8GateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.RyPi8);
+                blochSphere.applyGate(Gate.RyPi8);
+                updateQuantumStateDisplay();
+            });
+            leftPanel.addControl(ryPi8GateBtn);
+
+            const rzPi8GateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/rz-pi8-gate.png");
+            rzPi8GateBtn.paddingTop = paddingTop;
+            rzPi8GateBtn.width = buttonSize;
+            rzPi8GateBtn.height = buttonSize;
+            rzPi8GateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.RzPi8);
+                blochSphere.applyGate(Gate.RzPi8);
+                updateQuantumStateDisplay();
+            });
+            leftPanel.addControl(rzPi8GateBtn);
+
+            var zeroStateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/zero-state.png");
+            zeroStateBtn.paddingTop = paddingTop;
+            zeroStateBtn.width = buttonSize;
+            zeroStateBtn.height = buttonSize;
+            zeroStateBtn.onPointerDownObservable.add(()=> {
+                blochSphere.setProbAmplitudes(math.complex(1, 0), math.complex(0, 0));
+                updateQuantumStateDisplay();
+            });
+            leftPanel.addControl(zeroStateBtn);
+
+            var sGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/s-gate.png");
+            sGateBtn.paddingTop = paddingTop;
+            sGateBtn.width = buttonSize;
+            sGateBtn.height = buttonSize;
+            sGateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.S);
+                blochSphere.applyGate(Gate.S);
+                updateQuantumStateDisplay();
+            });
+            rightPanel.addControl(sGateBtn);
+
+            var sDagGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/s-dag-gate.png");
+            sDagGateBtn.paddingTop = paddingTop;
+            sDagGateBtn.width = buttonSize;
+            sDagGateBtn.height = buttonSize;
+            sDagGateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.St);
+                blochSphere.applyGate(Gate.St);
+                updateQuantumStateDisplay();
+            });
+            rightPanel.addControl(sDagGateBtn);
+
+            var tGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/t-gate.png");
+            tGateBtn.paddingTop = paddingTop;
+            tGateBtn.width = buttonSize;
+            tGateBtn.height = buttonSize;
+            tGateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.T);
+                blochSphere.applyGate(Gate.T);
+                updateQuantumStateDisplay();
+            });
+            rightPanel.addControl(tGateBtn);
+
+            var tDagGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/t-dag-gate.png");
+            tDagGateBtn.paddingTop = paddingTop;
+            tDagGateBtn.width = buttonSize;
+            tDagGateBtn.height = buttonSize;
+            tDagGateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.Tt);
+                blochSphere.applyGate(Gate.Tt);
+                updateQuantumStateDisplay();
+            });
+            rightPanel.addControl(tDagGateBtn);
+
+            const rxmPi8GateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/rx-mpi8-gate.png");
+            rxmPi8GateBtn.paddingTop = paddingTop;
+            rxmPi8GateBtn.width = buttonSize;
+            rxmPi8GateBtn.height = buttonSize;
+            rxmPi8GateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.RxmPi8);
+                blochSphere.applyGate(Gate.RxmPi8);
+                updateQuantumStateDisplay();
+            });
+            rightPanel.addControl(rxmPi8GateBtn);
+
+            const rymPi8GateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/ry-mpi8-gate.png");
+            rymPi8GateBtn.paddingTop = paddingTop;
+            rymPi8GateBtn.width = buttonSize;
+            rymPi8GateBtn.height = buttonSize;
+            rymPi8GateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.RymPi8);
+                blochSphere.applyGate(Gate.RymPi8);
+                updateQuantumStateDisplay();
+            });
+            rightPanel.addControl(rymPi8GateBtn);
+
+            const rzmPi8GateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/rz-mpi8-gate.png");
+            rzmPi8GateBtn.paddingTop = paddingTop;
+            rzmPi8GateBtn.width = buttonSize;
+            rzmPi8GateBtn.height = buttonSize;
+            rzmPi8GateBtn.onPointerDownObservable.add(()=> {
+                console.log(Gate.RzmPi8);
+                blochSphere.applyGate(Gate.RzmPi8);
+                updateQuantumStateDisplay();
+            });
+            rightPanel.addControl(rzmPi8GateBtn);
+
+            var oneStateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/one-state.png");
+            oneStateBtn.paddingTop = paddingTop;
+            oneStateBtn.width = buttonSize;
+            oneStateBtn.height = buttonSize;
+            oneStateBtn.onPointerDownObservable.add(()=> {
+                blochSphere.setProbAmplitudes(math.complex(0, 0), math.complex(1, 0));
+                updateQuantumStateDisplay();
+            });
+            rightPanel.addControl(oneStateBtn);
+
+            /////// END Gates panel
+
+            scene.onPointerObservable.add((pointerInfo) => {
+                switch (pointerInfo.type) {
+                    case BABYLON.PointerEventTypes.POINTERDOWN:
+                        // TODO: Find out how to identify that sphere was picked
+                        if(pointerInfo.pickInfo.hit && pointerInfo.pickInfo.pickedMesh == qSphere.sphere) {
+                            //console.log("pickedPoint: " + pointerInfo.pickInfo.pickedPoint);
+
+                        }
+                        break;
+                }
+            });
+
+
+            const setEndpointShapeType = function(endpointShapeType) {
+                thisEndpointShapeType = endpointShapeType;
+                qSphere.sphere.dispose();
+                qSphere = new QSphere("qSphere", scene, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+            };
+
+            const setShowBasisStates = function(showBasisStates) {
+                thisShowBasisStates = showBasisStates;
+                qSphere.sphere.dispose();
+                qSphere = new QSphere("qSphere", scene, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+            };
+
+
+            /////// User may paste a statevector into a text box and it will render on the Q-sphere
+            //
+            const strToComplexNum = function(complexStr) {
+                // Delineation between real and imaginary parts is first sign (+/-) that isn't at the start of the string
+                let minusSignPosition = complexStr.indexOf('-', 1);
+                if (complexStr.charAt(minusSignPosition - 1) ==='e') {
+                    minusSignPosition = complexStr.indexOf('-', minusSignPosition + 1);
+                }
+                let plusSignPosition = complexStr.indexOf('+', 1);
+                if (complexStr.charAt(plusSignPosition - 1) === 'e') {
+                    plusSignPosition = complexStr.indexOf('+', plusSignPosition + 1);
+                }
+                let imaginaryPositive = true;
+                if (minusSignPosition > 0) {
+                    if (plusSignPosition < 0 || minusSignPosition < plusSignPosition) {
+                        imaginaryPositive = false;
+                    }
+                }
+
+                let realPartStr = "";
+                let imagPartStr = "";
+
+                if (imaginaryPositive) {
+                    // There should be a plus sign in the string
+                    realPartStr = complexStr.substring(0, plusSignPosition);
+                    imagPartStr = complexStr.substring(plusSignPosition);
+                }
+                else {
+                    // There should be a minus sign in the string
+                    realPartStr = complexStr.substring(0, minusSignPosition);
+                    imagPartStr = complexStr.substring(minusSignPosition);
+                }
+                if (imagPartStr.endsWith('j')) {
+                    imagPartStr = imagPartStr.substring(0, imagPartStr.indexOf('j'));
+                }
+                return math.complex(Number(realPartStr), Number(imagPartStr));
+            };
+
+            const statevectorInputText = new BABYLON.GUI.InputText();
+            statevectorInputText.width = 0.25;
+            statevectorInputText.maxWidth = 0.25;
+            statevectorInputText.height = "40px";
+            statevectorInputText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            statevectorInputText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            statevectorInputText.text = "";
+            statevectorInputText.color = "white";
+            statevectorInputText.background = "gray";
+
+            statevectorInputText.onTextPasteObservable.add(function(){
+                let txt = statevectorInputText.text;
+                statevectorInputText.text = "** Pasted **";
+                setTimeout(() => { statevectorInputText.text = ""}, 1500);
+
+                let tempStateStrArray = [];
+                let pos = 0;
+
+                // Remove everything up to and including the final '[' (but there should only be one)
+                pos = txt.lastIndexOf('[');
+                if (pos >= 0 && txt.length > pos + 1) {
+                    txt = txt.substring(pos + 1);
+                }
+
+                // Remove everything including and after the first ']' (but there should only be one)
+                pos = txt.indexOf(']');
+                if (pos >= 0) {
+                    txt = txt.substring(0, pos);
+                }
+
+                // Remove all spaces
+                txt = txt.replace(/\s/g, '');
+
+                // Populate tempStateStrArray
+                tempStateStrArray = txt.split(',');
+
+                // Populate tempStateComplexArray complex numbers
+                let tempStateComplexArray = [];
+                for (let idx = 0; idx < tempStateStrArray.length; idx++) {
+                    const complexNumStr = tempStateStrArray[idx];
+                    tempStateComplexArray.push(strToComplexNum(complexNumStr));
+                }
+
+                const stateVectorComplexMatrix = math.matrix(tempStateComplexArray);
+
+                qSphere.sphere.dispose();
+                thisCurrentVector = stateVectorComplexMatrix;
+                qSphere = new QSphere("qSphere", scene, stateVectorComplexMatrix, thisEndpointShapeType, thisShowBasisStates);
+            });
+
+
+            advancedTexture.addControl(statevectorInputText);
+
+
+
+
+            const selectBox = new BABYLON.GUI.SelectionPanel("sp");
+            selectBox.width = 0.15;
+            selectBox.height = 0.30;
+            selectBox.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            selectBox.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+
+            advancedTexture.addControl(selectBox);
+
+            const optionsGroup = new BABYLON.GUI.RadioGroup("Options");
+            optionsGroup.addRadio("Spheres", setEndpointShapeType, true);
+            optionsGroup.addRadio("Cones", setEndpointShapeType);
+
+            selectBox.addGroup(optionsGroup);
+
+            const showGroup = new BABYLON.GUI.CheckboxGroup("Show");
+            showGroup.addCheckbox("Basis states", setShowBasisStates, false);
+
+            selectBox.addGroup(showGroup);
+
+            // return the created scene
+            return scene;
+        }
+
+
+        // call the createScene function
+        const scene = createScene();
+
+        // run the render loop
+        engine.runRenderLoop(function(){
+            scene.render();
+        });
+
+        // the canvas/window resize event handler
+        window.addEventListener('resize', function(){
+            engine.resize();
+        });
+    });
+</script>
+</body>
+</html>
