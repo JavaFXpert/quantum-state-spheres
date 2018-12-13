@@ -61,6 +61,7 @@
             math.complex(0, 0)
         ]);
         let thisShowBasisStates = false;
+        let thisPlane = null;
 
         let qSphere = null;
 
@@ -78,7 +79,12 @@
             // Create the scene space
             const scene = new BABYLON.Scene(engine);
 
-            qSphere = new QSphere("qSphere", scene, thisCurrentVector, 0);
+            thisPlane = BABYLON.MeshBuilder.CreatePlane("plane",
+                {height:2, width: 2, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
+                scene);
+            thisPlane.position = new BABYLON.Vector3(-2, 0, 0);
+
+            qSphere = new QSphere(thisPlane, "qSphere", scene, thisCurrentVector, 0, false);
 
             for (let idx = 0; idx < numBlochSpheres; idx++) {
                 blochSphereArray.push(new BlochSphere("blochSphere", scene, 0, 0));
@@ -89,7 +95,8 @@
             scene.clearColor = new BABYLON.Color3( .75, .75, .75);
 
             // Add a camera to the scene and attach it to the canvas
-            const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2.5, Math.PI / 2.5, 6, new BABYLON.Vector3(0, 0, 0), scene);
+            //const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2.5, Math.PI / 2.5, 6, new BABYLON.Vector3(0, 0, 0), scene);
+            const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(0, 0, 0), scene);
             camera.attachControl(canvas, true);
 
             // Add lights to the scene
@@ -306,13 +313,13 @@
             const setEndpointShapeType = function(endpointShapeType) {
                 thisEndpointShapeType = endpointShapeType;
                 qSphere.sphere.dispose();
-                qSphere = new QSphere("qSphere", scene, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere(thisPlane, "qSphere", scene, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
             };
 
             const setShowBasisStates = function(showBasisStates) {
                 thisShowBasisStates = showBasisStates;
                 qSphere.sphere.dispose();
-                qSphere = new QSphere("qSphere", scene, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere(thisPlane, "qSphere", scene, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
             };
 
 
@@ -401,7 +408,7 @@
 
                 qSphere.sphere.dispose();
                 thisCurrentVector = stateVectorComplexMatrix;
-                qSphere = new QSphere("qSphere", scene, stateVectorComplexMatrix, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere("qSphere", scene, stateVectorComplexMatrix, thisEndpointShapeType, thisShowBasisStates, thisPlane);
             });
 
 
