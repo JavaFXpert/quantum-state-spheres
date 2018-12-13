@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 class BlochSphere extends BABYLON.Mesh {
-    constructor(name, scene, inclinationRadians, azimuthRadians) {
+    constructor(parentMesh, name, scene, inclinationRadians, azimuthRadians) {
         super(name, scene);
         this.inclinationRadians = inclinationRadians;
         this.azimuthRadians = azimuthRadians;
@@ -28,6 +28,7 @@ class BlochSphere extends BABYLON.Mesh {
         this.quantumStateLineCap = null;
         this.quantumStateLineColor = new BABYLON.Color3(0, 0, 1);
 
+        this.sphere.parent = parentMesh;
         this.setupSphere();
     }
 
@@ -200,26 +201,32 @@ class BlochSphere extends BABYLON.Mesh {
         var xChar = this.makeTextPlane("X", "black", 0.2);
         xChar.position = new BABYLON.Vector3(0, 0.1, -1.2);
         xChar.isPickable = false;
+        xChar.parent = this.sphere;
 
         var yChar = this.makeTextPlane("Y", "black", 0.2);
         yChar.position = new BABYLON.Vector3(1.2, 0, 0);
         yChar.isPickable = false;
+        yChar.parent = this.sphere;
 
         var zeroKet = this.makeTextPlane("|0>", "black", 0.2);
         zeroKet.position = new BABYLON.Vector3(0, 1.2, 0);
         zeroKet.isPickable = false;
+        zeroKet.parent = this.sphere;
 
         var oneKet = this.makeTextPlane("|1>", "black", 0.2);
         oneKet.position = new BABYLON.Vector3(0, -1.2, 0);
         oneKet.isPickable = false;
+        oneKet.parent = this.sphere;
 
         var plusKet = this.makeTextPlane("|+>", "black", 0.2);
         plusKet.position = new BABYLON.Vector3(0, -0.1, -1.2);
         plusKet.isPickable = false;
+        plusKet.parent = this.sphere;
 
         var minusKet = this.makeTextPlane("<-|", "black", 0.2);
         minusKet.position = new BABYLON.Vector3(0, 0, 1.2);
         minusKet.isPickable = false;
+        minusKet.parent = this.sphere;
 
         this.updateQuantumStateLine()
     }
@@ -270,9 +277,11 @@ class BlochSphere extends BABYLON.Mesh {
 
         this.quantumStateLine.color = this.quantumStateLineColor;
         this.quantumStateLine.isPickable = false;
+        this.quantumStateLine.parent = this.sphere;
 
         this.quantumStateLineCap.color = this.quantumStateLineColor;
         this.quantumStateLineCap.isPickable = false;
+        this.quantumStateLineCap.parent = this.sphere;
         this.quantumStateLineCap.position = this.getCartesianCoords();
         this.quantumStateLineCap.rotation = new BABYLON.Vector3(-this.getInclinationRadians(), -this.getAzimuthRadians(), 0);
     }

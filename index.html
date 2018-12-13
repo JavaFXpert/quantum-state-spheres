@@ -65,8 +65,9 @@
 
         let qSphere = null;
 
-        const blochSphereArray = [];
         const numBlochSpheres = 3;
+        const blochSphereArray = [];
+        const blochSpherePlaneArray = [];
 
         // get the canvas DOM element
         const canvas = document.getElementById('renderCanvas');
@@ -80,14 +81,22 @@
             const scene = new BABYLON.Scene(engine);
 
             thisPlane = BABYLON.MeshBuilder.CreatePlane("plane",
-                {height:2, width: 2, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
+                {height:0.0001, width: 0.0001, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
                 scene);
+            //thisPlane.material = null;
             thisPlane.position = new BABYLON.Vector3(-2, 0, 0);
+            thisPlane.scaling = new BABYLON.Vector3(1.8, 1.8, 1.8);
 
             qSphere = new QSphere(thisPlane, "qSphere", scene, thisCurrentVector, 0, false);
 
             for (let idx = 0; idx < numBlochSpheres; idx++) {
-                blochSphereArray.push(new BlochSphere("blochSphere", scene, 0, 0));
+                const planeRef = BABYLON.MeshBuilder.CreatePlane("plane" + idx,
+                    {height:0.0001, width: 0.0001, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
+                    scene);
+                planeRef.position = new BABYLON.Vector3(2, (numBlochSpheres - idx - 2) * 1.7, 0);
+                planeRef.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
+                blochSpherePlaneArray.push(planeRef);
+                blochSphereArray.push(new BlochSphere(planeRef, "blochSphere", scene, 0, 0));
             }
 
             BABYLON.SceneOptimizer.OptimizeAsync(scene);

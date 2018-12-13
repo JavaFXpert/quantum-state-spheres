@@ -32,7 +32,7 @@ class QSphere extends BABYLON.Mesh {
         this.latLineColor = new BABYLON.Color3(.3, .3, .3);
         this.endpointShapeType = endpointShapeType;
         this.showBasisStates = showBasisStates;
-        this.parentMesh = parentMesh;
+        //this.parentMesh = parentMesh;
         this.sphere.parent = parentMesh;
         this.setupSphere();
     }
@@ -42,8 +42,10 @@ class QSphere extends BABYLON.Mesh {
         const myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
         this.sphere.material = myMaterial;
         // this.position.y = 0.0;
-        this.sphere.parent = this.parentMesh;
-        this.sphere.scaling = new BABYLON.Vector3(1.8, 1.8, 1.8);
+        //this.sphere.parent = this.parentMesh;
+
+        // Scale externally?
+        //this.sphere.scaling = new BABYLON.Vector3(1.8, 1.8, 1.8);
 
         myMaterial.alpha = 0.18;
 
