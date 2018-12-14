@@ -89,22 +89,22 @@
             // math.complex(0, 0),
             // math.complex(0, 0),
             // math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
             math.complex(0, 0),
             math.complex(0, 0),
             math.complex(0, 0),
@@ -126,7 +126,7 @@
 
         let qSphere = null;
 
-        const numBlochSpheres = 5;
+        const numBlochSpheres = 4;
         const blochSphereArray = [];
         const blochSpherePlaneArray = [];
         let selectedBlochSphere = 0;
@@ -346,9 +346,9 @@
                     {height:0.0001, width: 0.0001, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
                     scene1);
                 // planeRef.rotation = new BABYLON.Vector3(0, Math.PI / 4, 0);
-                planeRef.rotation.x = -Math.PI / 8;
+                planeRef.rotation.x = -Math.PI / 16;
                 //planeRef.rotation.y = Math.PI / 4;
-                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 3.0) * 1.7, -2.5, 0);
+                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 2.5) * 1.7, -2.5, 0);
                 planeRef.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
                 blochSpherePlaneArray.push(planeRef);
                 blochSphereArray.push(new BlochSphere(planeRef, "blochSphere", scene1, 0, 0));
