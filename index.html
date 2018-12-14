@@ -146,8 +146,6 @@
             console.log("tensorProduct before loop: " + tensorProduct);
 
             for (let blochIdx = numBlochSpheres - 2; blochIdx >= 0; blochIdx--) {
-                quantumPhaseDiskArray[blochIdx].updateQuantumPhaseLine();
-
                 const blochVector = [];
                 blochSphereArray[blochIdx].resetGlobalPhase();
                 blochVector.push(blochSphereArray[blochIdx].getProbAmplitude0());
@@ -161,8 +159,14 @@
             qSphere.sphere.dispose();
             thisCurrentVector = tensorProductComplexMatrix;
             qSphere = new QSphere(thisPlane, "qSphere", scene0, tensorProductComplexMatrix, thisEndpointShapeType, thisShowBasisStates);
+        }
 
+        const updateDisplayedQuantumStates = function() {
+            for (let idx = 0; idx < numBlochSpheres; idx++) {
+                quantumPhaseDiskArray[idx].updateQuantumPhaseLine();
+            }
 
+            updateQSphereFromBlochSpheres();
         }
 
         // createScene function that creates and return the scene
@@ -314,14 +318,13 @@
 
             advancedTexture.addControl(statevectorInputText);
 
-
-
-
             const selectBox = new BABYLON.GUI.SelectionPanel("sp");
             selectBox.width = 0.15;
-            selectBox.height = 0.30;
+            selectBox.height = 0.35;
             selectBox.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-            selectBox.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            selectBox.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            selectBox.paddingTop = "48px";
+            selectBox.paddingLeft = "8px";
 
             advancedTexture.addControl(selectBox);
 
@@ -407,7 +410,7 @@
             xGateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.X);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.X);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             leftPanel.addControl(xGateBtn);
 
@@ -418,7 +421,7 @@
             yGateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.Y);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.Y);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             leftPanel.addControl(yGateBtn);
 
@@ -429,7 +432,7 @@
             zGateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.Z);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.Z);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             leftPanel.addControl(zGateBtn);
 
@@ -440,7 +443,7 @@
             hGateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.H);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.H);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             leftPanel.addControl(hGateBtn);
 
@@ -451,7 +454,7 @@
             rxPi8GateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.RxPi8);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.RxPi8);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             leftPanel.addControl(rxPi8GateBtn);
 
@@ -462,7 +465,7 @@
             ryPi8GateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.RyPi8);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.RyPi8);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             leftPanel.addControl(ryPi8GateBtn);
 
@@ -473,7 +476,7 @@
             rzPi8GateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.RzPi8);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.RzPi8);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             leftPanel.addControl(rzPi8GateBtn);
 
@@ -483,7 +486,7 @@
             zeroStateBtn.height = buttonSize;
             zeroStateBtn.onPointerDownObservable.add(()=> {
                 blochSphereArray[selectedBlochSphere].setProbAmplitudes(math.complex(1, 0), math.complex(0, 0));
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             leftPanel.addControl(zeroStateBtn);
 
@@ -494,7 +497,7 @@
             sGateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.S);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.S);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             rightPanel.addControl(sGateBtn);
 
@@ -505,7 +508,7 @@
             sDagGateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.St);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.St);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             rightPanel.addControl(sDagGateBtn);
 
@@ -516,7 +519,7 @@
             tGateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.T);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.T);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             rightPanel.addControl(tGateBtn);
 
@@ -527,7 +530,7 @@
             tDagGateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.Tt);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.Tt);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             rightPanel.addControl(tDagGateBtn);
 
@@ -538,7 +541,7 @@
             rxmPi8GateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.RxmPi8);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.RxmPi8);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             rightPanel.addControl(rxmPi8GateBtn);
 
@@ -549,7 +552,7 @@
             rymPi8GateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.RymPi8);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.RymPi8);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             rightPanel.addControl(rymPi8GateBtn);
 
@@ -560,7 +563,7 @@
             rzmPi8GateBtn.onPointerDownObservable.add(()=> {
                 console.log(Gate.RzmPi8);
                 blochSphereArray[selectedBlochSphere].applyGate(Gate.RzmPi8);
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             rightPanel.addControl(rzmPi8GateBtn);
 
@@ -570,7 +573,7 @@
             oneStateBtn.height = buttonSize;
             oneStateBtn.onPointerDownObservable.add(()=> {
                 blochSphereArray[selectedBlochSphere].setProbAmplitudes(math.complex(0, 0), math.complex(1, 0));
-                updateQSphereFromBlochSpheres();
+                updateDisplayedQuantumStates();
             });
             rightPanel.addControl(oneStateBtn);
 
