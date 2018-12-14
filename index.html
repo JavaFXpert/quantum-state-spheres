@@ -138,6 +138,9 @@
         // load the 3D engine
         const engine = new BABYLON.Engine(canvas, true);
 
+        const blochSpherePlaneSelectedScaling = new BABYLON.Vector3(0.8, 0.8, 0.8);
+        const blochSpherePlaneNotSelectedScaling = new BABYLON.Vector3(0.7, 0.7, 0.7);
+
         const updateQSphereFromBlochSpheres = function() {
             let tensorProduct = [];
             blochSphereArray[numBlochSpheres - 1].resetGlobalPhase();
@@ -163,6 +166,12 @@
 
         const updateDisplayedQuantumStates = function() {
             for (let idx = 0; idx < numBlochSpheres; idx++) {
+                if (idx == selectedBlochSphere) {
+                    blochSpherePlaneArray[idx].scaling = blochSpherePlaneSelectedScaling;
+                }
+                else {
+                    blochSpherePlaneArray[idx].scaling = blochSpherePlaneNotSelectedScaling;
+                }
                 quantumPhaseDiskArray[idx].updateQuantumPhaseLine();
             }
 
@@ -367,7 +376,12 @@
                 }
 
                 planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 2.5) * 1.8, -1.7, bsZ);
-                planeRef.scaling = new BABYLON.Vector3(0.7, 0.7, 0.7);
+                if (idx == selectedBlochSphere) {
+                    planeRef.scaling = blochSpherePlaneSelectedScaling;
+                }
+                else {
+                    planeRef.scaling = blochSpherePlaneNotSelectedScaling;
+                }
                 blochSpherePlaneArray.push(planeRef);
                 blochSphereArray.push(new BlochSphere(planeRef, "blochSphere", scene1, 0, 0));
                 quantumPhaseDiskArray.push(new QuantumPhaseDisk(planeRef, "quantumPhaseDisk", scene1, blochSphereArray[idx], groundPositionVertical));
@@ -588,6 +602,7 @@
                                 pointerInfo.pickInfo.pickedMesh == blochSphereArray[idx].sphere) {
                                 selectedBlochSphere = idx;
                                 //blochSpherePlaneArray[0].scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
+                                updateDisplayedQuantumStates();
                             }
                         }
                     break;
