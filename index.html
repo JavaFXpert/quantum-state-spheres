@@ -105,20 +105,20 @@
             // math.complex(0, 0),
             // math.complex(0, 0),
             // math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
-            math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
             math.complex(0, 0)
         ]);
         let thisShowBasisStates = false;
@@ -142,13 +142,24 @@
         const blochSpherePlaneNotSelectedScaling = new BABYLON.Vector3(0.7, 0.7, 0.7);
 
         const updateQSphereFromBlochSpheres = function() {
-            let tensorProduct = [];
-            blochSphereArray[numBlochSpheres - 1].resetGlobalPhase();
-            tensorProduct.push(blochSphereArray[numBlochSpheres - 1].getProbAmplitude0());
-            tensorProduct.push(blochSphereArray[numBlochSpheres - 1].getProbAmplitude1());
+            // First, ascertain the index of the most significant qubit not in a |0> state
+            let msbNum = 0;
+            for (let idx = numBlochSpheres - 1; idx >= 0; idx--) {
+                const probAmp0 = blochSphereArray[idx].getProbAmplitude0();
+                if (math.type.Complex.compare(probAmp0, math.complex(1, 0)) != 0) {
+                    msbNum = idx;
+                    break; // break out of for loop
+                }
+            }
+
+            let tensorProduct = [[]];
+
+            blochSphereArray[msbNum].resetGlobalPhase();
+            tensorProduct[0].push(blochSphereArray[msbNum].getProbAmplitude0());
+            tensorProduct[0].push(blochSphereArray[msbNum].getProbAmplitude1());
             console.log("tensorProduct before loop: " + tensorProduct);
 
-            for (let blochIdx = numBlochSpheres - 2; blochIdx >= 0; blochIdx--) {
+            for (let blochIdx = msbNum - 1; blochIdx >= 0; blochIdx--) {
                 const blochVector = [];
                 blochSphereArray[blochIdx].resetGlobalPhase();
                 blochVector.push(blochSphereArray[blochIdx].getProbAmplitude0());
@@ -157,12 +168,30 @@
 
                 tensorProduct = math.kron(tensorProduct, blochVector);
             }
+
+
+            // blochSphereArray[numBlochSpheres - 1].resetGlobalPhase();
+            // tensorProduct.push(blochSphereArray[numBlochSpheres - 1].getProbAmplitude0());
+            // tensorProduct.push(blochSphereArray[numBlochSpheres - 1].getProbAmplitude1());
+            // console.log("tensorProduct before loop: " + tensorProduct);
+            //
+            // for (let blochIdx = numBlochSpheres - 2; blochIdx >= 0; blochIdx--) {
+            //     const blochVector = [];
+            //     blochSphereArray[blochIdx].resetGlobalPhase();
+            //     blochVector.push(blochSphereArray[blochIdx].getProbAmplitude0());
+            //     blochVector.push(blochSphereArray[blochIdx].getProbAmplitude1());
+            //     console.log("blochVector: " + blochVector);
+            //
+            //     tensorProduct = math.kron(tensorProduct, blochVector);
+            // }
+
+
             console.log("tensorProduct after loop: " + tensorProduct);
             const tensorProductComplexMatrix = math.matrix(tensorProduct[0]);
             qSphere.sphere.dispose();
             thisCurrentVector = tensorProductComplexMatrix;
             qSphere = new QSphere(thisPlane, "qSphere", scene0, tensorProductComplexMatrix, thisEndpointShapeType, thisShowBasisStates);
-        }
+        };
 
         const updateDisplayedQuantumStates = function() {
             for (let idx = 0; idx < numBlochSpheres; idx++) {
