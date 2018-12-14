@@ -129,6 +129,7 @@
         const numBlochSpheres = 4;
         const blochSphereArray = [];
         const blochSpherePlaneArray = [];
+        const quantumPhaseDiskArray = [];
         let selectedBlochSphere = 0;
 
         // get the canvas DOM element
@@ -145,6 +146,8 @@
             console.log("tensorProduct before loop: " + tensorProduct);
 
             for (let blochIdx = numBlochSpheres - 2; blochIdx >= 0; blochIdx--) {
+                quantumPhaseDiskArray[blochIdx].updateQuantumPhaseLine();
+
                 const blochVector = [];
                 blochSphereArray[blochIdx].resetGlobalPhase();
                 blochVector.push(blochSphereArray[blochIdx].getProbAmplitude0());
@@ -171,9 +174,11 @@
                 {height:0.0001, width: 0.0001, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
                 scene0);
             //thisPlane.material = null;
-            thisPlane.position = new BABYLON.Vector3(0, 0.5, 0);
-            thisPlane.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
+            thisPlane.position = new BABYLON.Vector3(0, 1.0, 0);
+            thisPlane.scaling = new BABYLON.Vector3(1.3, 1.3, 1.3);
             thisPlane.rotation.x = -Math.PI / 8;
+            thisPlane.rotation.y = Math.PI / 16;
+            thisPlane.rotation.z = -Math.PI / 64;
 
             qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, 0, false);
 
@@ -341,6 +346,8 @@
             const scene1 = new BABYLON.Scene(engine);
             scene1.autoClear = false;
 
+            const groundPositionVertical = -1.8;
+
             for (let idx = 0; idx < numBlochSpheres; idx++) {
                 const planeRef = BABYLON.MeshBuilder.CreatePlane("plane" + idx,
                     {height:0.0001, width: 0.0001, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
@@ -348,10 +355,19 @@
                 // planeRef.rotation = new BABYLON.Vector3(0, Math.PI / 4, 0);
                 planeRef.rotation.x = -Math.PI / 16;
                 //planeRef.rotation.y = Math.PI / 4;
-                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 2.5) * 1.7, -2.5, 0);
-                planeRef.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
+
+                // TODO: Just trying out putting in an arc. Use trig to place if this works well
+                let bsZ = .2;
+                if (idx > 0 && idx < numBlochSpheres - 1) {
+                    //bsZ = 0.7;
+                    bsZ = 0.2;
+                }
+
+                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 2.5) * 1.8, -1.7, bsZ);
+                planeRef.scaling = new BABYLON.Vector3(0.7, 0.7, 0.7);
                 blochSpherePlaneArray.push(planeRef);
                 blochSphereArray.push(new BlochSphere(planeRef, "blochSphere", scene1, 0, 0));
+                quantumPhaseDiskArray.push(new QuantumPhaseDisk(planeRef, "quantumPhaseDisk", scene1, blochSphereArray[idx], groundPositionVertical));
             }
 
             BABYLON.SceneOptimizer.OptimizeAsync(scene1);

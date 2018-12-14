@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 class QuantumPhaseDisk extends BABYLON.Mesh {
-    constructor(name, scene, blochSphere, verticalPositionInScene) {
+    constructor(parentMesh, name, scene, blochSphere, verticalPositionInScene) {
         super(name, scene);
         this.blochSphere = blochSphere;
 
@@ -36,6 +36,7 @@ class QuantumPhaseDisk extends BABYLON.Mesh {
         this.quantumPhaseLineCap = null;
         this.quantumPhaseLineColor = new BABYLON.Color3(0, 0, 1);
 
+        this.phaseCyl.parent = parentMesh;
         this.setupDisk();
     }
 
