@@ -114,8 +114,8 @@
                 {height:0.0001, width: 0.0001, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
                 scene0);
             //thisPlane.material = null;
-            thisPlane.position = new BABYLON.Vector3(-2, 0, 0);
-            thisPlane.scaling = new BABYLON.Vector3(1.8, 1.8, 1.8);
+            thisPlane.position = new BABYLON.Vector3(0, 0.5, 0);
+            thisPlane.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
 
             qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, 0, false);
 
@@ -205,6 +205,8 @@
             statevectorInputText.text = "";
             statevectorInputText.color = "white";
             statevectorInputText.background = "gray";
+            statevectorInputText.paddingTop = "8px";
+            statevectorInputText.paddingLeft = "8px";
 
             statevectorInputText.onTextPasteObservable.add(function(){
                 let txt = statevectorInputText.text;
@@ -288,7 +290,7 @@
                 // planeRef.rotation = new BABYLON.Vector3(0, Math.PI / 4, 0);
                 planeRef.rotation.x = -Math.PI / 8;
                 //planeRef.rotation.y = Math.PI / 4;
-                planeRef.position = new BABYLON.Vector3(2, (numBlochSpheres - idx - 2) * 1.7, 0);
+                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 2) * 1.7, -2.5, 0);
                 planeRef.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
                 blochSpherePlaneArray.push(planeRef);
                 blochSphereArray.push(new BlochSphere(planeRef, "blochSphere", scene1, 0, 0));
@@ -299,7 +301,7 @@
             scene1.clearColor = new BABYLON.Color3( .75, .75, .75);
 
             // Add a camera to the scene and attach it to the canvas
-            const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(0, 0, 0), scene1);
+            const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2, 8, new BABYLON.Vector3(0, 0, 0), scene1);
             camera.attachControl(canvas, false);
 
             // Add lights to the scene
@@ -309,20 +311,20 @@
 
             /////// Gates panel
             var leftPanel = new BABYLON.GUI.StackPanel();
-            leftPanel.width = "250px";
+            leftPanel.width = "200px";
             leftPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-            leftPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            leftPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
             advancedTexture.addControl(leftPanel);
 
             var rightPanel = new BABYLON.GUI.StackPanel();
-            rightPanel.width = "100px";
+            rightPanel.width = "72px";
             rightPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-            rightPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            rightPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
             advancedTexture.addControl(rightPanel);
 
             // TODO: Move these into styles
-            var buttonSize = "65px";
-            var paddingTop = "10px";
+            var buttonSize = "55px";
+            var paddingTop = "8px";
 
             var xGateBtn = BABYLON.GUI.Button.CreateImageOnlyButton("but", "textures/x-gate.png");
             xGateBtn.paddingTop = paddingTop;
