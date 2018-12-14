@@ -54,71 +54,8 @@
 <script>
     window.addEventListener('DOMContentLoaded', function(){
         let thisEndpointShapeType = 0;
-        // TODO: Change to tensor product
         let thisCurrentVector = math.matrix([
             math.complex(1, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
-            // math.complex(0, 0),
             math.complex(0, 0)
         ]);
         let thisShowBasisStates = false;
@@ -205,7 +142,15 @@
             }
 
             updateQSphereFromBlochSpheres();
-        }
+        };
+
+        const resetAllBlochSpheres = function() {
+            for (let idx = 0; idx < numBlochSpheres; idx++) {
+                blochSphereArray[idx].setProbAmplitudes(math.complex(1, 0), math.complex(0, 0));
+            }
+            selectedBlochSphere = 0;
+            updateDisplayedQuantumStates();
+        };
 
         // createScene function that creates and return the scene
         const createScene0 = function(){
@@ -314,6 +259,8 @@
             statevectorInputText.paddingLeft = "8px";
 
             statevectorInputText.onTextPasteObservable.add(function(){
+                resetAllBlochSpheres();
+
                 let txt = statevectorInputText.text;
                 statevectorInputText.text = "** Pasted **";
                 setTimeout(() => { statevectorInputText.text = ""}, 1500);
@@ -373,7 +320,7 @@
             selectBox.addGroup(optionsGroup);
 
             const showGroup = new BABYLON.GUI.CheckboxGroup("Show");
-            showGroup.addCheckbox("Basis states", setShowBasisStates, false);
+            showGroup.addCheckbox("Basis states", setShowBasisStates, true);
 
             selectBox.addGroup(showGroup);
 
