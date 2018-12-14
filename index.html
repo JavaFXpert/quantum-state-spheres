@@ -54,8 +54,65 @@
 <script>
     window.addEventListener('DOMContentLoaded', function(){
         let thisEndpointShapeType = 0;
+        // TODO: Change to tensor product
         let thisCurrentVector = math.matrix([
             math.complex(1, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            // math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
+            math.complex(0, 0),
             math.complex(0, 0),
             math.complex(0, 0),
             math.complex(0, 0),
@@ -69,7 +126,7 @@
 
         let qSphere = null;
 
-        const numBlochSpheres = 3;
+        const numBlochSpheres = 5;
         const blochSphereArray = [];
         const blochSpherePlaneArray = [];
         let selectedBlochSphere = 0;
@@ -116,6 +173,7 @@
             //thisPlane.material = null;
             thisPlane.position = new BABYLON.Vector3(0, 0.5, 0);
             thisPlane.scaling = new BABYLON.Vector3(1.5, 1.5, 1.5);
+            thisPlane.rotation.x = -Math.PI / 8;
 
             qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, 0, false);
 
@@ -258,7 +316,7 @@
             selectBox.width = 0.15;
             selectBox.height = 0.30;
             selectBox.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-            selectBox.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+            selectBox.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
 
             advancedTexture.addControl(selectBox);
 
@@ -290,7 +348,7 @@
                 // planeRef.rotation = new BABYLON.Vector3(0, Math.PI / 4, 0);
                 planeRef.rotation.x = -Math.PI / 8;
                 //planeRef.rotation.y = Math.PI / 4;
-                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 2) * 1.7, -2.5, 0);
+                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 3.0) * 1.7, -2.5, 0);
                 planeRef.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
                 blochSpherePlaneArray.push(planeRef);
                 blochSphereArray.push(new BlochSphere(planeRef, "blochSphere", scene1, 0, 0));
@@ -506,20 +564,14 @@
                 switch (pointerInfo.type) {
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         // TODO: Find out how to identify that sphere was picked
-                        if(pointerInfo.pickInfo.hit &&
-                            pointerInfo.pickInfo.pickedMesh == blochSphereArray[0].sphere) {
-                            selectedBlochSphere = 0;
-                            //blochSpherePlaneArray[0].scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
+                        for (let idx = 0; idx < numBlochSpheres; idx++) {
+                            if(pointerInfo.pickInfo.hit &&
+                                pointerInfo.pickInfo.pickedMesh == blochSphereArray[idx].sphere) {
+                                selectedBlochSphere = idx;
+                                //blochSpherePlaneArray[0].scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
+                            }
                         }
-                        else if(pointerInfo.pickInfo.hit &&
-                            pointerInfo.pickInfo.pickedMesh == blochSphereArray[1].sphere) {
-                            selectedBlochSphere = 1;
-                        }
-                        else if(pointerInfo.pickInfo.hit &&
-                            pointerInfo.pickInfo.pickedMesh == blochSphereArray[2].sphere) {
-                            selectedBlochSphere = 2;
-                        }
-                        break;
+                    break;
                 }
             });
 
