@@ -150,8 +150,6 @@ class BlochSphere extends BABYLON.Mesh {
     setupSphere() {
         var myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
         this.sphere.material = myMaterial;
-        this.position.y = 0.0;
-        this.sphere.scaling = new BABYLON.Vector3(1.0, 1.0, 1.0);
 
         var equator = this.createEquator();
         equator.parent = this.sphere;

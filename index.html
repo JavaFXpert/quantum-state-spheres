@@ -76,40 +76,202 @@
         const engine = new BABYLON.Engine(canvas, true);
 
         // createScene function that creates and return the scene
-        const createScene = function(){
+        const createScene0 = function(){
             // Create the scene space
-            const scene = new BABYLON.Scene(engine);
+            const scene0 = new BABYLON.Scene(engine);
 
             thisPlane = BABYLON.MeshBuilder.CreatePlane("plane",
                 {height:0.0001, width: 0.0001, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
-                scene);
+                scene0);
             //thisPlane.material = null;
             thisPlane.position = new BABYLON.Vector3(-2, 0, 0);
             thisPlane.scaling = new BABYLON.Vector3(1.8, 1.8, 1.8);
 
-            qSphere = new QSphere(thisPlane, "qSphere", scene, thisCurrentVector, 0, false);
+            qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, 0, false);
+
+            BABYLON.SceneOptimizer.OptimizeAsync(scene0);
+
+            scene0.clearColor = new BABYLON.Color3( .75, .75, .75);
+
+            // Add a camera to the scene and attach it to the canvas
+            const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(0, 0, 0), scene0);
+            camera.attachControl(canvas, false);
+
+            // Add lights to the scene
+            const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(-3, 7, 1), scene0);
+
+            const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+
+            scene0.onPointerObservable.add((pointerInfo) => {
+                switch (pointerInfo.type) {
+                    case BABYLON.PointerEventTypes.POINTERDOWN:
+                        // TODO: Find out how to identify that sphere was picked
+                        if(pointerInfo.pickInfo.hit && pointerInfo.pickInfo.pickedMesh == qSphere.sphere) {
+                            //console.log("pickedPoint: " + pointerInfo.pickInfo.pickedPoint);
+
+                        }
+                        break;
+                }
+            });
+
+            const setEndpointShapeType = function(endpointShapeType) {
+                thisEndpointShapeType = endpointShapeType;
+                qSphere.sphere.dispose();
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+            };
+
+            const setShowBasisStates = function(showBasisStates) {
+                thisShowBasisStates = showBasisStates;
+                qSphere.sphere.dispose();
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+            };
+
+
+            /////// User may paste a statevector into a text box and it will render on the Q-sphere
+            //
+            const strToComplexNum = function(complexStr) {
+                // Delineation between real and imaginary parts is first sign (+/-) that isn't at the start of the string
+                let minusSignPosition = complexStr.indexOf('-', 1);
+                if (complexStr.charAt(minusSignPosition - 1) ==='e') {
+                    minusSignPosition = complexStr.indexOf('-', minusSignPosition + 1);
+                }
+                let plusSignPosition = complexStr.indexOf('+', 1);
+                if (complexStr.charAt(plusSignPosition - 1) === 'e') {
+                    plusSignPosition = complexStr.indexOf('+', plusSignPosition + 1);
+                }
+                let imaginaryPositive = true;
+                if (minusSignPosition > 0) {
+                    if (plusSignPosition < 0 || minusSignPosition < plusSignPosition) {
+                        imaginaryPositive = false;
+                    }
+                }
+
+                let realPartStr = "";
+                let imagPartStr = "";
+
+                if (imaginaryPositive) {
+                    // There should be a plus sign in the string
+                    realPartStr = complexStr.substring(0, plusSignPosition);
+                    imagPartStr = complexStr.substring(plusSignPosition);
+                }
+                else {
+                    // There should be a minus sign in the string
+                    realPartStr = complexStr.substring(0, minusSignPosition);
+                    imagPartStr = complexStr.substring(minusSignPosition);
+                }
+                if (imagPartStr.endsWith('j')) {
+                    imagPartStr = imagPartStr.substring(0, imagPartStr.indexOf('j'));
+                }
+                return math.complex(Number(realPartStr), Number(imagPartStr));
+            };
+
+            const statevectorInputText = new BABYLON.GUI.InputText();
+            statevectorInputText.width = 0.25;
+            statevectorInputText.maxWidth = 0.25;
+            statevectorInputText.height = "40px";
+            statevectorInputText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            statevectorInputText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            statevectorInputText.text = "";
+            statevectorInputText.color = "white";
+            statevectorInputText.background = "gray";
+
+            statevectorInputText.onTextPasteObservable.add(function(){
+                let txt = statevectorInputText.text;
+                statevectorInputText.text = "** Pasted **";
+                setTimeout(() => { statevectorInputText.text = ""}, 1500);
+
+                let tempStateStrArray = [];
+                let pos = 0;
+
+                // Remove everything up to and including the final '[' (but there should only be one)
+                pos = txt.lastIndexOf('[');
+                if (pos >= 0 && txt.length > pos + 1) {
+                    txt = txt.substring(pos + 1);
+                }
+
+                // Remove everything including and after the first ']' (but there should only be one)
+                pos = txt.indexOf(']');
+                if (pos >= 0) {
+                    txt = txt.substring(0, pos);
+                }
+
+                // Remove all spaces
+                txt = txt.replace(/\s/g, '');
+
+                // Populate tempStateStrArray
+                tempStateStrArray = txt.split(',');
+
+                // Populate tempStateComplexArray complex numbers
+                let tempStateComplexArray = [];
+                for (let idx = 0; idx < tempStateStrArray.length; idx++) {
+                    const complexNumStr = tempStateStrArray[idx];
+                    tempStateComplexArray.push(strToComplexNum(complexNumStr));
+                }
+
+                const stateVectorComplexMatrix = math.matrix(tempStateComplexArray);
+
+                qSphere.sphere.dispose();
+                thisCurrentVector = stateVectorComplexMatrix;
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, stateVectorComplexMatrix, thisEndpointShapeType, thisShowBasisStates);
+            });
+
+
+            advancedTexture.addControl(statevectorInputText);
+
+
+
+
+            const selectBox = new BABYLON.GUI.SelectionPanel("sp");
+            selectBox.width = 0.15;
+            selectBox.height = 0.30;
+            selectBox.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            selectBox.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+
+            advancedTexture.addControl(selectBox);
+
+            const optionsGroup = new BABYLON.GUI.RadioGroup("Options");
+            optionsGroup.addRadio("Spheres", setEndpointShapeType, true);
+            optionsGroup.addRadio("Cones", setEndpointShapeType);
+
+            selectBox.addGroup(optionsGroup);
+
+            const showGroup = new BABYLON.GUI.CheckboxGroup("Show");
+            showGroup.addCheckbox("Basis states", setShowBasisStates, false);
+
+            selectBox.addGroup(showGroup);
+
+            // return the created scene
+            return scene0;
+        }
+
+        // createScene function that creates and return the scene
+        const createScene1 = function(){
+            // Create the scene space
+            const scene1 = new BABYLON.Scene(engine);
+            scene1.autoClear = false;
 
             for (let idx = 0; idx < numBlochSpheres; idx++) {
                 const planeRef = BABYLON.MeshBuilder.CreatePlane("plane" + idx,
                     {height:0.0001, width: 0.0001, sideOrientation: BABYLON.Mesh.DOUBLESIDE},
-                    scene);
+                    scene1);
+                planeRef.rotation = new BABYLON.Vector3(0, Math.PI / 4, 0);
                 planeRef.position = new BABYLON.Vector3(2, (numBlochSpheres - idx - 2) * 1.7, 0);
                 planeRef.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6);
                 blochSpherePlaneArray.push(planeRef);
-                blochSphereArray.push(new BlochSphere(planeRef, "blochSphere", scene, 0, 0));
+                blochSphereArray.push(new BlochSphere(planeRef, "blochSphere", scene1, 0, 0));
             }
 
-            BABYLON.SceneOptimizer.OptimizeAsync(scene);
+            BABYLON.SceneOptimizer.OptimizeAsync(scene1);
 
-            scene.clearColor = new BABYLON.Color3( .75, .75, .75);
+            scene1.clearColor = new BABYLON.Color3( .75, .75, .75);
 
             // Add a camera to the scene and attach it to the canvas
-            //const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2.5, Math.PI / 2.5, 6, new BABYLON.Vector3(0, 0, 0), scene);
-            const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(0, 0, 0), scene);
-            camera.attachControl(canvas, true);
+            const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(0, 0, 0), scene1);
+            camera.attachControl(canvas, false);
 
             // Add lights to the scene
-            const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(-3, 7, 1), scene);
+            const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(-3, 7, 1), scene1);
 
             const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
@@ -306,156 +468,19 @@
 
             /////// END Gates panel
 
-            scene.onPointerObservable.add((pointerInfo) => {
-                switch (pointerInfo.type) {
-                    case BABYLON.PointerEventTypes.POINTERDOWN:
-                        // TODO: Find out how to identify that sphere was picked
-                        if(pointerInfo.pickInfo.hit && pointerInfo.pickInfo.pickedMesh == qSphere.sphere) {
-                            //console.log("pickedPoint: " + pointerInfo.pickInfo.pickedPoint);
-
-                        }
-                        break;
-                }
-            });
-
-
-            const setEndpointShapeType = function(endpointShapeType) {
-                thisEndpointShapeType = endpointShapeType;
-                qSphere.sphere.dispose();
-                qSphere = new QSphere(thisPlane, "qSphere", scene, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
-            };
-
-            const setShowBasisStates = function(showBasisStates) {
-                thisShowBasisStates = showBasisStates;
-                qSphere.sphere.dispose();
-                qSphere = new QSphere(thisPlane, "qSphere", scene, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
-            };
-
-
-            /////// User may paste a statevector into a text box and it will render on the Q-sphere
-            //
-            const strToComplexNum = function(complexStr) {
-                // Delineation between real and imaginary parts is first sign (+/-) that isn't at the start of the string
-                let minusSignPosition = complexStr.indexOf('-', 1);
-                if (complexStr.charAt(minusSignPosition - 1) ==='e') {
-                    minusSignPosition = complexStr.indexOf('-', minusSignPosition + 1);
-                }
-                let plusSignPosition = complexStr.indexOf('+', 1);
-                if (complexStr.charAt(plusSignPosition - 1) === 'e') {
-                    plusSignPosition = complexStr.indexOf('+', plusSignPosition + 1);
-                }
-                let imaginaryPositive = true;
-                if (minusSignPosition > 0) {
-                    if (plusSignPosition < 0 || minusSignPosition < plusSignPosition) {
-                        imaginaryPositive = false;
-                    }
-                }
-
-                let realPartStr = "";
-                let imagPartStr = "";
-
-                if (imaginaryPositive) {
-                    // There should be a plus sign in the string
-                    realPartStr = complexStr.substring(0, plusSignPosition);
-                    imagPartStr = complexStr.substring(plusSignPosition);
-                }
-                else {
-                    // There should be a minus sign in the string
-                    realPartStr = complexStr.substring(0, minusSignPosition);
-                    imagPartStr = complexStr.substring(minusSignPosition);
-                }
-                if (imagPartStr.endsWith('j')) {
-                    imagPartStr = imagPartStr.substring(0, imagPartStr.indexOf('j'));
-                }
-                return math.complex(Number(realPartStr), Number(imagPartStr));
-            };
-
-            const statevectorInputText = new BABYLON.GUI.InputText();
-            statevectorInputText.width = 0.25;
-            statevectorInputText.maxWidth = 0.25;
-            statevectorInputText.height = "40px";
-            statevectorInputText.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-            statevectorInputText.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-            statevectorInputText.text = "";
-            statevectorInputText.color = "white";
-            statevectorInputText.background = "gray";
-
-            statevectorInputText.onTextPasteObservable.add(function(){
-                let txt = statevectorInputText.text;
-                statevectorInputText.text = "** Pasted **";
-                setTimeout(() => { statevectorInputText.text = ""}, 1500);
-
-                let tempStateStrArray = [];
-                let pos = 0;
-
-                // Remove everything up to and including the final '[' (but there should only be one)
-                pos = txt.lastIndexOf('[');
-                if (pos >= 0 && txt.length > pos + 1) {
-                    txt = txt.substring(pos + 1);
-                }
-
-                // Remove everything including and after the first ']' (but there should only be one)
-                pos = txt.indexOf(']');
-                if (pos >= 0) {
-                    txt = txt.substring(0, pos);
-                }
-
-                // Remove all spaces
-                txt = txt.replace(/\s/g, '');
-
-                // Populate tempStateStrArray
-                tempStateStrArray = txt.split(',');
-
-                // Populate tempStateComplexArray complex numbers
-                let tempStateComplexArray = [];
-                for (let idx = 0; idx < tempStateStrArray.length; idx++) {
-                    const complexNumStr = tempStateStrArray[idx];
-                    tempStateComplexArray.push(strToComplexNum(complexNumStr));
-                }
-
-                const stateVectorComplexMatrix = math.matrix(tempStateComplexArray);
-
-                qSphere.sphere.dispose();
-                thisCurrentVector = stateVectorComplexMatrix;
-                qSphere = new QSphere("qSphere", scene, stateVectorComplexMatrix, thisEndpointShapeType, thisShowBasisStates, thisPlane);
-            });
-
-
-            advancedTexture.addControl(statevectorInputText);
-
-
-
-
-            const selectBox = new BABYLON.GUI.SelectionPanel("sp");
-            selectBox.width = 0.15;
-            selectBox.height = 0.30;
-            selectBox.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-            selectBox.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
-
-            advancedTexture.addControl(selectBox);
-
-            const optionsGroup = new BABYLON.GUI.RadioGroup("Options");
-            optionsGroup.addRadio("Spheres", setEndpointShapeType, true);
-            optionsGroup.addRadio("Cones", setEndpointShapeType);
-
-            selectBox.addGroup(optionsGroup);
-
-            const showGroup = new BABYLON.GUI.CheckboxGroup("Show");
-            showGroup.addCheckbox("Basis states", setShowBasisStates, false);
-
-            selectBox.addGroup(showGroup);
-
             // return the created scene
-            return scene;
+            return scene1;
         }
 
 
         // call the createScene function
-        const scene = createScene();
+        const scene0 = createScene0();
+        const scene1 = createScene1();
 
         // run the render loop
         engine.runRenderLoop(function(){
-            scene.render();
+            scene0.render();
+            scene1.render();
         });
 
         // the canvas/window resize event handler
