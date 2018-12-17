@@ -34,6 +34,7 @@ class QSphere extends BABYLON.Mesh {
         this.showBasisStates = showBasisStates;
         //this.parentMesh = parentMesh;
         this.sphere.parent = parentMesh;
+        this.insignificantProbability = .0000000000000001;
         this.setupSphere();
     }
 
@@ -82,10 +83,11 @@ class QSphere extends BABYLON.Mesh {
 
     }
 
-    makeTextPlane(text, color, size) {
-        var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", 110, this.scene, true);
+    makeTextPlane(textA, textB, color, size) {
+        var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", {width: 190, height: 220}, this.scene, true);
         dynamicTexture.hasAlpha = true;
-        dynamicTexture.drawText(text, (8 - text.length) * 6, 110, "bold 36px Arial", color, "transparent", true);
+        dynamicTexture.drawText(textA, (8 - textA.length) * 6, 170, "bold 48px Arial", color, "transparent", true);
+        dynamicTexture.drawText(textB, (8 - textB.length) * 6, 220, "bold 48px Arial", color, "transparent", true);
         var plane = new BABYLON.Mesh.CreatePlane("TextPlane", size, this.scene, true);
         plane.material = new BABYLON.StandardMaterial("TextPlaneMaterial", this.scene);
         plane.material.backFaceCulling = false;
@@ -133,7 +135,7 @@ class QSphere extends BABYLON.Mesh {
             basisStateLine.parent = this.sphere;
 
             let alphaVal = 1;
-            if (probability < .0000000000000001) {
+            if (probability < this.insignificantProbability) {
                 alphaVal = 0;
             }
             else {
@@ -149,7 +151,7 @@ class QSphere extends BABYLON.Mesh {
 
             let basisStateLineCap = null;
 
-            if (probability < 0.0000000000000001) {
+            if (probability < this.insignificantProbability) {
                 // TODO: Make these black dots?
                 basisStateLineCap = BABYLON.MeshBuilder.CreateSphere("quantumStateLineCap",
                     {
@@ -193,7 +195,8 @@ class QSphere extends BABYLON.Mesh {
                     amplitude.toPolar().phi - (math.PI / 2));
 
             if (this.showBasisStates) {
-                const basisStateLabel = this.makeTextPlane(stateIndex.toString(2), "black", 0.2);
+                const probabilityStr = probability < this.insignificantProbability ? "" : "P " + (probability / 1.0).toFixed(2).toString();
+                const basisStateLabel = this.makeTextPlane(stateIndex.toString(2), probabilityStr, "black", 0.2);
                 basisStateLabel.parent = basisStateLineCap;
                 // Un-rotate the text from the cap
                 //basisStateLabel.position = new BABYLON.Vector3(0.01, -0.03, 0.0);
@@ -208,7 +211,7 @@ class QSphere extends BABYLON.Mesh {
 
             // TODO: See if we can create only one material per color (instead of for every sphere)
             const mat = new BABYLON.StandardMaterial("mat", this.scene);
-            if (probability < .0000000000000001) {
+            if (probability < this.insignificantProbability) {
                 mat.diffuseColor = new BABYLON.Color3(0, 0, 0);
             }
             else {
