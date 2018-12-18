@@ -65,6 +65,7 @@
         ]);
         let thisShowBasisStates = false;
         let thisCnot01 = false;
+        let thisCnot02 = false;
         let thisCnot12 = false;
         let thisPlane = null;
 
@@ -136,10 +137,26 @@
                 console.log("tensorProductComplexMatrix after cnot01: " + tensorProductComplexMatrix);
             }
 
+            //TODO: Make this work
+            if (thisCnot02) {
+                let cnot02Tensor = math.identity(2);
+                for (let blochIdx = msbNum - 1; blochIdx > 0; blochIdx--) {
+                    if (blochIdx == 0) {
+                        cnot02Tensor = math.kron(cnot02Tensor, math.identity(2));
+                    }
+                    else {
+                        cnot02Tensor = math.kron(cnotMatrix, cnot02Tensor);
+                    }
+                }
+                console.log("cnot02Tensor: " + cnot02Tensor);
+                tensorProductComplexMatrix = math.multiply(cnot02Tensor, tensorProductComplexMatrix);
+                console.log("tensorProductComplexMatrix after cnot02:  " + tensorProductComplexMatrix);
+            }
+
             if (thisCnot12) {
                 let cnot12Tensor = math.identity(2);
                 for (let blochIdx = msbNum - 1; blochIdx > 0; blochIdx--) {
-                    if (blochIdx = msbNum - 2) {
+                    if (blochIdx == msbNum - 2) {
                         cnot12Tensor = math.kron(math.identity(2), cnot12Tensor);
                     }
                     else {
@@ -274,6 +291,14 @@
                 qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
             };
 
+            const setCnot02 = function(cnot02) {
+                thisCnot02 = cnot02;
+                thisMsbNum = math.max(thisMsbNum, 2);
+                updateDisplayedQuantumStates();
+                qSphere.sphere.dispose();
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+            };
+
             const setCnot12 = function(cnot12) {
                 thisCnot12 = cnot12;
                 thisMsbNum = math.max(thisMsbNum, 2);
@@ -401,6 +426,7 @@
 
             const cnotGroup = new BABYLON.GUI.CheckboxGroup("CNOT");
             cnotGroup.addCheckbox("q0 -> q1", setCnot01, false);
+            //cnotGroup.addCheckbox("q0 -> q2", setCnot02, false);
             cnotGroup.addCheckbox("q1 -> q2", setCnot12, false);
 
             selectBox.addGroup(cnotGroup);
