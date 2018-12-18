@@ -63,6 +63,8 @@
             math.complex(0, 0)
         ]);
         let thisShowBasisStates = false;
+        let thisCnot01 = false;
+        let thisCnot02 = false;
         let thisPlane = null;
 
         let qSphere = null;
@@ -195,6 +197,10 @@
                             thisPointerDown = true;
                             thisLastPointerX = scene0.pointerX;
                             thisLastPointerY = scene0.pointerY;
+
+                            // TODO: Work out better way to better keep sphere oriented vertically
+                            // thisPlane.rotation.x = -Math.PI / 8;
+                            // thisPlane.rotation.z = -Math.PI / 64;
                         }
                         break;
                     case BABYLON.PointerEventTypes.POINTERUP:
@@ -235,6 +241,20 @@
 
             const setShowBasisStates = function(showBasisStates) {
                 thisShowBasisStates = showBasisStates;
+                qSphere.sphere.dispose();
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+            };
+
+            const setCnot01 = function(cnot01) {
+                thisCnot01 = cnot01;
+                updateDisplayedQuantumStates();
+                qSphere.sphere.dispose();
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+            };
+
+            const setCnot02 = function(cnot02) {
+                thisCnot02 = cnot02;
+                updateDisplayedQuantumStates();
                 qSphere.sphere.dispose();
                 qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
             };
@@ -337,7 +357,7 @@
 
             const selectBox = new BABYLON.GUI.SelectionPanel("sp");
             selectBox.width = 0.15;
-            selectBox.height = 0.35;
+            selectBox.height = 0.55;
             selectBox.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
             selectBox.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
             selectBox.paddingTop = "48px";
@@ -355,6 +375,12 @@
             showGroup.addCheckbox("Basis states", setShowBasisStates, true);
 
             selectBox.addGroup(showGroup);
+
+            const cnotGroup = new BABYLON.GUI.CheckboxGroup("CNOT");
+            cnotGroup.addCheckbox("q0 -> q1", setCnot01, false);
+            cnotGroup.addCheckbox("q0 -> q2", setCnot02, false);
+
+            selectBox.addGroup(cnotGroup);
 
             // return the created scene
             return scene0;
