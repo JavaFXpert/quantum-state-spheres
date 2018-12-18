@@ -209,9 +209,14 @@
                             const deltaX = (thisLastPointerX - scene0.pointerX) / 300;
                             const deltaY = (thisLastPointerY - scene0.pointerY) / 300;
 
-                            thisPlane.rotation.x += deltaY * math.cos(thisPlane.rotation.y);
+                            let propRotX = thisPlane.rotation.x += deltaY * math.cos(thisPlane.rotation.y);
+                            let propRotZ = thisPlane.rotation.z += deltaY * math.sin(thisPlane.rotation.y);
 
-                            thisPlane.rotation.z += deltaY * math.sin(thisPlane.rotation.y);
+                            // TODO: keep y axis vertical to user
+                            // Perhaps make ratio between x and z rotation dependent upon y rotation
+
+                            thisPlane.rotation.x = propRotX;
+                            thisPlane.rotation.z = propRotZ;
 
                             thisPlane.rotation.y += deltaX;
 
