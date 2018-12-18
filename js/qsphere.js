@@ -84,10 +84,10 @@ class QSphere extends BABYLON.Mesh {
     }
 
     makeTextPlane(textA, textB, color, size) {
-        var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", {width: 190, height: 220}, this.scene, true);
+        var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", {width: 190, height: 300}, this.scene, true);
         dynamicTexture.hasAlpha = true;
-        dynamicTexture.drawText(textA, (8 - textA.length) * 6, 170, "bold 48px Arial", color, "transparent", true);
-        dynamicTexture.drawText(textB, (8 - textB.length) * 6, 220, "bold 48px Arial", color, "transparent", true);
+        dynamicTexture.drawText(textA, (8 - textA.length) * 6, 250, "bold 48px Arial", color, "transparent", true);
+        dynamicTexture.drawText(textB, (8 - textB.length) * 6, 300, "bold 48px Arial", color, "transparent", true);
         var plane = new BABYLON.Mesh.CreatePlane("TextPlane", size, this.scene, true);
         plane.material = new BABYLON.StandardMaterial("TextPlaneMaterial", this.scene);
         plane.material.backFaceCulling = false;
