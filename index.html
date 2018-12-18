@@ -167,9 +167,9 @@
             //thisPlane.material = null;
             thisPlane.position = new BABYLON.Vector3(0, 1.0, 0);
             thisPlane.scaling = new BABYLON.Vector3(1.3, 1.3, 1.3);
-            //thisPlane.rotation.x = -Math.PI / 8;
+            thisPlane.rotation.x = -Math.PI / 8;
             thisPlane.rotation.y = Math.PI / 16;
-            //thisPlane.rotation.z = -Math.PI / 64;
+            thisPlane.rotation.z = -Math.PI / 64;
 
             qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, 0, false);
 
@@ -178,9 +178,7 @@
             scene0.clearColor = new BABYLON.Color3( .75, .75, .75);
 
             // Add a camera to the scene and attach it to the canvas
-            //const camera = new BABYLON.ArcRotateCamera("camera1",  -Math.PI / 2, Math.PI / 2, 6, new BABYLON.Vector3(0, 0, 0), scene0);
             const camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 0.2, -5.6), scene0);
-            //camera.attachControl(canvas, false);
 
             // Add lights to the scene
             const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(-3, 7, 1), scene0);
@@ -205,18 +203,20 @@
                     case BABYLON.PointerEventTypes.POINTERMOVE:
                         // TODO: Find out how to identify that sphere was picked
                         if(thisPointerDown) {
-                            console.log("scene0.pointerX: " + scene0.pointerX);
-                            //console.log("scene0.pointerY: " + scene0.pointerY);
+                            // console.log("scene0.pointerX: " + scene0.pointerX);
+                            // console.log("scene0.pointerY: " + scene0.pointerY);
 
                             const deltaX = (thisLastPointerX - scene0.pointerX) / 300;
-                            //const deltaY = (thisLastPointerY - scene0.pointerY) / 100;
+                            const deltaY = (thisLastPointerY - scene0.pointerY) / 300;
+
+                            thisPlane.rotation.x += deltaY * math.cos(thisPlane.rotation.y);
+
+                            thisPlane.rotation.z += deltaY * math.sin(thisPlane.rotation.y);
 
                             thisPlane.rotation.y += deltaX;
 
-                            //thisPlane.rotation.x += deltaY;
-
                             thisLastPointerX = scene0.pointerX;
-                            //thisLastPointerY = scene0.pointerY;
+                            thisLastPointerY = scene0.pointerY;
                         }
                         break;
                 }
