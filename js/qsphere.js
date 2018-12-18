@@ -195,8 +195,11 @@ class QSphere extends BABYLON.Mesh {
                     amplitude.toPolar().phi - (math.PI / 2));
 
             if (this.showBasisStates) {
+                const numBasisStateBits = Math.log2(this.quantumStateVector.size());
+                const basisStateBitStr = stateIndex.toString(2);
+                const zeroPaddedBasisStateBitStr = ("0".repeat(numBasisStateBits) + basisStateBitStr).substring(basisStateBitStr.length);
                 const probabilityStr = probability < this.insignificantProbability ? "" : "P " + (probability / 1.0).toFixed(2).toString();
-                const basisStateLabel = this.makeTextPlane(stateIndex.toString(2), probabilityStr, "black", 0.2);
+                const basisStateLabel = this.makeTextPlane(zeroPaddedBasisStateBitStr, probabilityStr, "black", 0.2);
                 basisStateLabel.parent = basisStateLineCap;
                 // Un-rotate the text from the cap
                 //basisStateLabel.position = new BABYLON.Vector3(0.01, -0.03, 0.0);
