@@ -65,7 +65,7 @@
         ]);
         let thisShowBasisStates = false;
         let thisCnot01 = false;
-        let thisCnot02 = false;
+        let thisCnot12 = false;
         let thisPlane = null;
 
         let qSphere = null;
@@ -129,23 +129,27 @@
             if (thisCnot01) {
                 let cnot01Tensor = cnotMatrix;
                 for (let blochIdx = msbNum - 1; blochIdx > 0; blochIdx--) {
-                    //cnot01Tensor = math.kron(cnot01Tensor, math.identity(2));
                     cnot01Tensor = math.kron(math.identity(2), cnot01Tensor);
                 }
                 console.log("cnot01Tensor: " + cnot01Tensor);
                 tensorProductComplexMatrix = math.multiply(cnot01Tensor, tensorProductComplexMatrix);
-                console.log("tensorProductComplexMatrix: " + tensorProductComplexMatrix);
+                console.log("tensorProductComplexMatrix after cnot01: " + tensorProductComplexMatrix);
             }
 
-            // if (thisCnot02) {
-            //     let cnot02Tensor = cnotMatrix;
-            //     for (let blochIdx = msbNum - 1; blochIdx > 0; blochIdx--) {
-            //         cnot01Tensor = math.kron(tensorProduct, math.identity(2));
-            //     }
-            //     console.log("cnot01Tensor: " + cnot01Tensor);
-            //     tensorProductComplexMatrix = math.multiply(cnot01Tensor, tensorProductComplexMatrix);
-            //     console.log("tensorProductComplexMatrix: " + tensorProductComplexMatrix);
-            // }
+            if (thisCnot12) {
+                let cnot12Tensor = math.identity(2);
+                for (let blochIdx = msbNum - 1; blochIdx > 0; blochIdx--) {
+                    if (blochIdx = msbNum - 2) {
+                        cnot12Tensor = math.kron(math.identity(2), cnot12Tensor);
+                    }
+                    else {
+                        cnot12Tensor = math.kron(cnotMatrix, cnot12Tensor);
+                    }
+                }
+                console.log("cnot12Tensor: " + cnot12Tensor);
+                tensorProductComplexMatrix = math.multiply(cnot12Tensor, tensorProductComplexMatrix);
+                console.log("tensorProductComplexMatrix after cnot12:  " + tensorProductComplexMatrix);
+            }
 
 
             qSphere.sphere.dispose();
@@ -270,8 +274,8 @@
                 qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
             };
 
-            const setCnot02 = function(cnot02) {
-                thisCnot02 = cnot02;
+            const setCnot12 = function(cnot12) {
+                thisCnot12 = cnot12;
                 thisMsbNum = math.max(thisMsbNum, 2);
                 updateDisplayedQuantumStates();
                 qSphere.sphere.dispose();
@@ -397,7 +401,7 @@
 
             const cnotGroup = new BABYLON.GUI.CheckboxGroup("CNOT");
             cnotGroup.addCheckbox("q0 -> q1", setCnot01, false);
-            cnotGroup.addCheckbox("q0 -> q2", setCnot02, false);
+            cnotGroup.addCheckbox("q1 -> q2", setCnot12, false);
 
             selectBox.addGroup(cnotGroup);
 
