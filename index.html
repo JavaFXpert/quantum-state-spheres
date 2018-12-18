@@ -53,6 +53,7 @@
 <canvas id="renderCanvas"></canvas>
 <script>
     window.addEventListener('DOMContentLoaded', function(){
+        let thisMsbNum = 0; // Most significant qubit used since starting app
         let thisPointerDown = false;
         let thisLastPointerX = 0;
         let thisLastPointerY = 0;
@@ -85,7 +86,7 @@
         const blochSpherePlaneNotSelectedScaling = new BABYLON.Vector3(0.7, 0.7, 0.7);
 
         const updateQSphereFromBlochSpheres = function() {
-            // First, ascertain the index of the most significant qubit not in a |0> state
+            // First, ascertain the zero-based index of the most significant qubit not in a |0> state
             let msbNum = 0;
             for (let idx = numBlochSpheres - 1; idx >= 0; idx--) {
                 const probAmp0 = blochSphereArray[idx].getProbAmplitude0();
@@ -94,8 +95,10 @@
                     break; // break out of for loop
                 }
             }
+            msbNum = math.max(thisMsbNum, msbNum);
+            console.log("msbNum: " + msbNum);
 
-            let tensorProduct = [[]];
+            let tensorProduct  = [[]];
 
             blochSphereArray[msbNum].resetGlobalPhase();
             tensorProduct[0].push(blochSphereArray[msbNum].getProbAmplitude0());
@@ -112,25 +115,39 @@
                 tensorProduct = math.kron(tensorProduct, blochVector);
             }
 
+            // Do CNOT operations if selected
+            const cnotMatrix = math.matrix([
+                [1, 0, 0, 0],
+                [0, 0, 0, 1],
+                [0, 0, 1, 0],
+                [0, 1, 0, 0]
+            ]);
 
-            // blochSphereArray[numBlochSpheres - 1].resetGlobalPhase();
-            // tensorProduct.push(blochSphereArray[numBlochSpheres - 1].getProbAmplitude0());
-            // tensorProduct.push(blochSphereArray[numBlochSpheres - 1].getProbAmplitude1());
-            // console.log("tensorProduct before loop: " + tensorProduct);
-            //
-            // for (let blochIdx = numBlochSpheres - 2; blochIdx >= 0; blochIdx--) {
-            //     const blochVector = [];
-            //     blochSphereArray[blochIdx].resetGlobalPhase();
-            //     blochVector.push(blochSphereArray[blochIdx].getProbAmplitude0());
-            //     blochVector.push(blochSphereArray[blochIdx].getProbAmplitude1());
-            //     console.log("blochVector: " + blochVector);
-            //
-            //     tensorProduct = math.kron(tensorProduct, blochVector);
+            console.log("tensorProduct after loop: " + tensorProduct);
+            let tensorProductComplexMatrix = math.matrix(tensorProduct[0]);
+
+            if (thisCnot01) {
+                let cnot01Tensor = cnotMatrix;
+                for (let blochIdx = msbNum - 1; blochIdx > 0; blochIdx--) {
+                    //cnot01Tensor = math.kron(cnot01Tensor, math.identity(2));
+                    cnot01Tensor = math.kron(math.identity(2), cnot01Tensor);
+                }
+                console.log("cnot01Tensor: " + cnot01Tensor);
+                tensorProductComplexMatrix = math.multiply(cnot01Tensor, tensorProductComplexMatrix);
+                console.log("tensorProductComplexMatrix: " + tensorProductComplexMatrix);
+            }
+
+            // if (thisCnot02) {
+            //     let cnot02Tensor = cnotMatrix;
+            //     for (let blochIdx = msbNum - 1; blochIdx > 0; blochIdx--) {
+            //         cnot01Tensor = math.kron(tensorProduct, math.identity(2));
+            //     }
+            //     console.log("cnot01Tensor: " + cnot01Tensor);
+            //     tensorProductComplexMatrix = math.multiply(cnot01Tensor, tensorProductComplexMatrix);
+            //     console.log("tensorProductComplexMatrix: " + tensorProductComplexMatrix);
             // }
 
 
-            console.log("tensorProduct after loop: " + tensorProduct);
-            const tensorProductComplexMatrix = math.matrix(tensorProduct[0]);
             qSphere.sphere.dispose();
             thisCurrentVector = tensorProductComplexMatrix;
             qSphere = new QSphere(thisPlane, "qSphere", scene0, tensorProductComplexMatrix, thisEndpointShapeType, thisShowBasisStates);
@@ -193,7 +210,7 @@
                     case BABYLON.PointerEventTypes.POINTERDOWN:
                         // TODO: Find out how to identify that sphere was picked
                         if(pointerInfo.pickInfo.hit && pointerInfo.pickInfo.pickedMesh == qSphere.sphere) {
-                            console.log("pickedPoint: " + pointerInfo.pickInfo.pickedPoint);
+                            //console.log("pickedPoint: " + pointerInfo.pickInfo.pickedPoint);
                             thisPointerDown = true;
                             thisLastPointerX = scene0.pointerX;
                             thisLastPointerY = scene0.pointerY;
@@ -247,6 +264,7 @@
 
             const setCnot01 = function(cnot01) {
                 thisCnot01 = cnot01;
+                thisMsbNum = math.max(thisMsbNum, 1);
                 updateDisplayedQuantumStates();
                 qSphere.sphere.dispose();
                 qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
@@ -254,6 +272,7 @@
 
             const setCnot02 = function(cnot02) {
                 thisCnot02 = cnot02;
+                thisMsbNum = math.max(thisMsbNum, 2);
                 updateDisplayedQuantumStates();
                 qSphere.sphere.dispose();
                 qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
@@ -635,6 +654,7 @@
                             if(pointerInfo.pickInfo.hit &&
                                 pointerInfo.pickInfo.pickedMesh == blochSphereArray[idx].sphere) {
                                 selectedBlochSphere = idx;
+                                thisMsbNum = math.max(thisMsbNum, selectedBlochSphere);
                                 //blochSpherePlaneArray[0].scaling = new BABYLON.Vector3(1.2, 1.2, 1.2);
                                 updateDisplayedQuantumStates();
                             }
