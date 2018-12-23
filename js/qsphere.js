@@ -121,10 +121,11 @@ class QSphere extends BABYLON.Mesh {
                 const increment = math.PI * (3.0 - math.sqrt(5.0));
 
                 // TODO: modify next lines
-                let weight = Hamming.calcWeight(stateIndex);
-                zCoord = -2 * weight / numBits + 1;
+                //let weight = Hamming.calcWeight(stateIndex);
+                //zCoord = -2 * weight / numBits + 1;
 
-
+                const offset = 2.0 / numStates;
+                zCoord = ((stateIndex * offset) - 1) + (offset / 2);
                 angle = ((stateIndex) % numStates) * increment
             }
             else {

@@ -72,7 +72,7 @@
 
         let qSphere = null;
 
-        const numBlochSpheres = 4;
+        const numBlochSpheres = 8;
         const blochSphereArray = [];
         const blochSpherePlaneArray = [];
         const quantumPhaseDiskArray = [];
@@ -427,7 +427,7 @@
             selectBox.addGroup(optionsGroup);
 
             const showGroup = new BABYLON.GUI.CheckboxGroup("Show");
-            showGroup.addCheckbox("Basis states", setShowBasisStates, true);
+            showGroup.addCheckbox("Basis states", setShowBasisStates, false);
             showGroup.addCheckbox("Packed sphere", setShowPackedSphere, false);
 
             selectBox.addGroup(showGroup);
@@ -466,7 +466,7 @@
                     bsZ = 0.2;
                 }
 
-                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - 2.5) * 1.8, -1.7, bsZ);
+                planeRef.position = new BABYLON.Vector3((numBlochSpheres - idx - ((numBlochSpheres + 1) / 2.0)) * 1.8, -1.7, bsZ);
                 if (idx == selectedBlochSphere) {
                     planeRef.scaling = blochSpherePlaneSelectedScaling;
                 }
