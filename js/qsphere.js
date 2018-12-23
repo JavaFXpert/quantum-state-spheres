@@ -112,14 +112,27 @@ class QSphere extends BABYLON.Mesh {
 
         // console.log("numStates: " + numStates);
         for (let stateIndex = 0; stateIndex < numStates; stateIndex++) {
-            let weight = Hamming.calcWeight(stateIndex);
-            let zCoord = -2 * weight / numBits + 1;
-            // console.log("numBits: " + numBits + ", weight: " + weight);
-            let numDivisions = math.combinations(numBits, weight);
-            let weightOrder = Hamming.weightIndex(stateIndex, numBits);
-            let angle = weightOrder * 2 * Math.PI / numDivisions;
-            let xCoord = math.sqrt(1 - math.pow(zCoord, 2)) * math.cos(angle);
-            let yCoord = math.sqrt(1 - math.pow(zCoord, 2)) * math.sin(angle);
+
+            let xCoord = 0;
+            let yCoord = 0;
+            let zCoord = 0;
+            let angle = 0;
+
+            // Calculate positions on sphere for Q-sphere or packed sphere layouts
+            if (this.showPackedSphere) {
+
+            }
+            else {
+                let weight = Hamming.calcWeight(stateIndex);
+                zCoord = -2 * weight / numBits + 1;
+                // console.log("numBits: " + numBits + ", weight: " + weight);
+                let numDivisions = math.combinations(numBits, weight);
+                let weightOrder = Hamming.weightIndex(stateIndex, numBits);
+                angle = weightOrder * 2 * Math.PI / numDivisions;
+                xCoord = math.sqrt(1 - math.pow(zCoord, 2)) * math.cos(angle);
+                yCoord = math.sqrt(1 - math.pow(zCoord, 2)) * math.sin(angle);
+            }
+
             let amplitude = math.subset(stateVector, math.index(stateIndex));
             let probability = math.multiply(amplitude, math.conj(amplitude));
             // console.log("stateIndex: " + stateIndex + ", amplitude: " + amplitude + ", probability: " + probability);
