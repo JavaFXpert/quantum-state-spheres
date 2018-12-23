@@ -18,7 +18,7 @@
     [] Use math.combinations(n, k) for binomial coefficient
  */
 class QSphere extends BABYLON.Mesh {
-    constructor(parentMesh, name, scene, quantumStateVector, endpointShapeType, showBasisStates) {
+    constructor(parentMesh, name, scene, quantumStateVector, endpointShapeType, showBasisStates, packedSphere) {
         super(name, scene);
         this.quantumStateVector = quantumStateVector;
         this.radius = 1;
@@ -32,6 +32,7 @@ class QSphere extends BABYLON.Mesh {
         this.latLineColor = new BABYLON.Color3(.3, .3, .3);
         this.endpointShapeType = endpointShapeType;
         this.showBasisStates = showBasisStates;
+        this.showPackedSphere = packedSphere;
         //this.parentMesh = parentMesh;
         this.sphere.parent = parentMesh;
         this.insignificantProbability = .0000000000000001;

@@ -64,6 +64,7 @@
             math.complex(0, 0)
         ]);
         let thisShowBasisStates = false;
+        let thisShowPackedSphere = false;
         let thisCnot01 = false;
         let thisCnot02 = false;
         let thisCnot12 = false;
@@ -171,7 +172,7 @@
 
             qSphere.sphere.dispose();
             thisCurrentVector = tensorProductComplexMatrix;
-            qSphere = new QSphere(thisPlane, "qSphere", scene0, tensorProductComplexMatrix, thisEndpointShapeType, thisShowBasisStates);
+            qSphere = new QSphere(thisPlane, "qSphere", scene0, tensorProductComplexMatrix, thisEndpointShapeType, thisShowBasisStates, thisShowPackedSphere);
         };
 
         const updateDisplayedQuantumStates = function() {
@@ -211,7 +212,7 @@
             thisPlane.rotation.y = Math.PI / 16;
             thisPlane.rotation.z = -Math.PI / 64;
 
-            qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, 0, false);
+            qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, 0, false, false);
 
             BABYLON.SceneOptimizer.OptimizeAsync(scene0);
 
@@ -274,13 +275,19 @@
             const setEndpointShapeType = function(endpointShapeType) {
                 thisEndpointShapeType = endpointShapeType;
                 qSphere.sphere.dispose();
-                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates, thisShowPackedSphere);
             };
 
             const setShowBasisStates = function(showBasisStates) {
                 thisShowBasisStates = showBasisStates;
                 qSphere.sphere.dispose();
-                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates, thisShowPackedSphere);
+            };
+
+            const setShowPackedSphere = function(showPackedSphere) {
+                thisShowPackedSphere = showPackedSphere;
+                qSphere.sphere.dispose();
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates, thisShowPackedSphere);
             };
 
             const setCnot01 = function(cnot01) {
@@ -288,7 +295,7 @@
                 thisMsbNum = math.max(thisMsbNum, 1);
                 updateDisplayedQuantumStates();
                 qSphere.sphere.dispose();
-                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates, thisShowPackedSphere);
             };
 
             const setCnot02 = function(cnot02) {
@@ -296,7 +303,7 @@
                 thisMsbNum = math.max(thisMsbNum, 2);
                 updateDisplayedQuantumStates();
                 qSphere.sphere.dispose();
-                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates, thisShowPackedSphere);
             };
 
             const setCnot12 = function(cnot12) {
@@ -304,7 +311,7 @@
                 thisMsbNum = math.max(thisMsbNum, 2);
                 updateDisplayedQuantumStates();
                 qSphere.sphere.dispose();
-                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, thisCurrentVector, thisEndpointShapeType, thisShowBasisStates, thisShowPackedSphere);
             };
 
 
@@ -397,7 +404,7 @@
 
                 qSphere.sphere.dispose();
                 thisCurrentVector = stateVectorComplexMatrix;
-                qSphere = new QSphere(thisPlane, "qSphere", scene0, stateVectorComplexMatrix, thisEndpointShapeType, thisShowBasisStates);
+                qSphere = new QSphere(thisPlane, "qSphere", scene0, stateVectorComplexMatrix, thisEndpointShapeType, thisShowBasisStates, thisShowPackedSphere);
             });
 
 
@@ -421,6 +428,7 @@
 
             const showGroup = new BABYLON.GUI.CheckboxGroup("Show");
             showGroup.addCheckbox("Basis states", setShowBasisStates, true);
+            showGroup.addCheckbox("Packed sphere", setShowPackedSphere, false);
 
             selectBox.addGroup(showGroup);
 
