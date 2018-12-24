@@ -111,6 +111,17 @@ class QSphere extends BABYLON.Mesh {
         let loc = math.max(math.abs(stateVector));
 
         // console.log("numStates: " + numStates);
+
+        let increment = math.PI * (3.0 - math.sqrt(5.0));
+        if (this.showPackedSphere) {
+            // increment = (2 * math.PI) / 2.0;
+            increment = (3 * math.PI) / 6;
+        }
+
+        // TODO: REMOVE Calculate angle for penultimate state
+        const ultimateStateAngle = (numStates - 2) * increment;
+
+
         for (let stateIndex = 0; stateIndex < numStates; stateIndex++) {
 
             let zCoord = 0;
@@ -118,11 +129,6 @@ class QSphere extends BABYLON.Mesh {
 
             // Calculate positions on sphere for Q-sphere or packed sphere layouts
             if (this.showPackedSphere) {
-                const increment = math.PI * (3.0 - math.sqrt(5.0));
-
-                // TODO: modify next lines
-                //let weight = Hamming.calcWeight(stateIndex);
-                //zCoord = -2 * weight / numBits + 1;
 
                 const offset = 2.0 / numStates;
                 if (stateIndex == 0) {
@@ -135,7 +141,7 @@ class QSphere extends BABYLON.Mesh {
                 }
                 else {
                     zCoord = ((stateIndex * offset) - 1) + (offset / 2);
-                    angle = ((stateIndex) % (numStates - 2)) * increment;
+                    angle = (stateIndex % (numStates - 1)) * increment;
                 }
             }
             else {
