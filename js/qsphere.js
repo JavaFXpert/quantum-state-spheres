@@ -25,9 +25,9 @@ class QSphere extends BABYLON.Mesh {
         this.scene = scene;
         //this.gui3dManager = new BABYLON.GUI.GUI3DManager(scene);
         this.sphere = BABYLON.MeshBuilder.CreateSphere("qsphere", {
-            diameterX: this.radius * 2,
-            diameterY: this.radius * 2,
-            diameterZ: this.radius * 2},
+                diameterX: this.radius * 2,
+                diameterY: this.radius * 2,
+                diameterZ: this.radius * 2},
             scene);
         this.latLineColor = new BABYLON.Color3(.3, .3, .3);
         this.endpointShapeType = endpointShapeType;
@@ -85,7 +85,7 @@ class QSphere extends BABYLON.Mesh {
     }
 
     makeTextPlane(textA, textB, color, size) {
-        var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", {width: 190, height: 400}, this.scene, true);
+        var dynamicTexture = new BABYLON.DynamicTexture("DynamicTexture", {width: 300, height: 400}, this.scene, true);
         dynamicTexture.hasAlpha = true;
         dynamicTexture.drawText(textA, (8 - textA.length) * 6, 340, "bold 64px Arial", color, "transparent", true);
         dynamicTexture.drawText(textB, (8 - textB.length) * 6, 400, "bold 64px Arial", color, "transparent", true);
@@ -125,8 +125,18 @@ class QSphere extends BABYLON.Mesh {
                 //zCoord = -2 * weight / numBits + 1;
 
                 const offset = 2.0 / numStates;
-                zCoord = ((stateIndex * offset) - 1) + (offset / 2);
-                angle = ((stateIndex) % numStates) * increment
+                if (stateIndex == 0) {
+                    zCoord = -1.0;
+                    angle = 0.0;
+                }
+                else if (stateIndex == numStates - 1) {
+                    zCoord = 1.0;
+                    angle = 0.0;
+                }
+                else {
+                    zCoord = ((stateIndex * offset) - 1) + (offset / 2);
+                    angle = ((stateIndex) % (numStates - 2)) * increment;
+                }
             }
             else {
                 let weight = Hamming.calcWeight(stateIndex);
@@ -245,3 +255,4 @@ class QSphere extends BABYLON.Mesh {
 
     }
 }
+
