@@ -43,37 +43,20 @@ class QSphere extends BABYLON.Mesh {
     setupSphere() {
         const myMaterial = new BABYLON.StandardMaterial("myMaterial", this.scene);
         this.sphere.material = myMaterial;
-        // this.position.y = 0.0;
-        //this.sphere.parent = this.parentMesh;
-
-        // Scale externally?
-        //this.sphere.scaling = new BABYLON.Vector3(1.8, 1.8, 1.8);
-
         myMaterial.alpha = 0.18;
 
         this.updateAppearanceWithStateVector(this.quantumStateVector);
     }
 
     createWeightLinesAndCenterPoint(numBits) {
-        for (let weight = 0; weight <= numBits; weight++) {
-            let y = -2 * weight / numBits + 1;
-            let radius = math.sqrt(1 - math.pow(y, 2));
-
-
-            const myPoints = [];
-            const deltaTheta = Math.PI / 20;
-            let theta = 0;
-            for (let i = 0; i<Math.PI * 20; i++) {
-                myPoints.push(new BABYLON.Vector3(radius * Math.cos(theta), y, radius * Math.sin(theta)));
-                theta += deltaTheta;
+        if (this.showPackedSphere) {
+            this.createLatitude(0);
+        }
+        else {
+            for (let weight = 0; weight <= numBits; weight++) {
+                let y = -2 * weight / numBits + 1;
+                this.createLatitude(y)
             }
-
-            //Create lines
-            const lines = BABYLON.MeshBuilder.CreateDashedLines("lines", {points: myPoints, updatable: true}, this.scene);
-            lines.isPickable = false;
-            lines.parent = this.sphere;
-            lines.color = this.latLineColor;
-            lines.alpha = 0.3;
         }
 
         const centerPoint = BABYLON.MeshBuilder.CreateSphere("centerPoint",
@@ -82,6 +65,30 @@ class QSphere extends BABYLON.Mesh {
         centerPoint.parent = this.sphere;
         centerPoint.position = new BABYLON.Vector3(0, 0, 0);
 
+    }
+
+    createLatitude(yPos) {
+        let radius = math.sqrt(1 - math.pow(yPos, 2));
+
+
+        const myPoints = [];
+        const deltaTheta = Math.PI / 20;
+        let theta = 0;
+        for (let i = 0; i < Math.PI * 20; i++) {
+            myPoints.push(new BABYLON.Vector3(radius * Math.cos(theta), yPos, radius * Math.sin(theta)));
+            theta += deltaTheta;
+        }
+
+        //Create lines
+        const lines = BABYLON.MeshBuilder.CreateDashedLines("lines", {
+            points: myPoints,
+            updatable: true
+        }, this.scene);
+        lines.isPickable = false;
+        lines.parent = this.sphere;
+        lines.color = this.latLineColor;
+        lines.alpha = 0.3;
+        return lines;
     }
 
     makeTextPlane(textA, textB, color, size) {
@@ -114,8 +121,9 @@ class QSphere extends BABYLON.Mesh {
 
         let increment = math.PI * (3.0 - math.sqrt(5.0));
         if (this.showPackedSphere) {
-            // increment = (2 * math.PI) / 2.0;
-            increment = (3 * math.PI) / 6;
+            if (numStates == 4) {
+                increment = math.PI;
+            }
         }
 
         // TODO: REMOVE Calculate angle for penultimate state
@@ -132,16 +140,18 @@ class QSphere extends BABYLON.Mesh {
 
                 const offset = 2.0 / numStates;
                 if (stateIndex == 0) {
-                    zCoord = -1.0;
-                    angle = 0.0;
-                }
-                else if (stateIndex == numStates - 1) {
                     zCoord = 1.0;
                     angle = 0.0;
                 }
+                else if (stateIndex == numStates - 1) {
+                    zCoord = -1.0;
+                    angle = 0.0;
+                }
                 else {
-                    zCoord = ((stateIndex * offset) - 1) + (offset / 2);
-                    angle = (stateIndex % (numStates - 1)) * increment;
+                    // zCoord = ((stateIndex * offset) - 1) + (offset / 2);
+                    zCoord = -((stateIndex * offset) - 1) - (offset / 2);
+                    angle = ((stateIndex - 1) % (numStates - 2)) * increment;
+
                 }
             }
             else {
