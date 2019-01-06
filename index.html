@@ -63,7 +63,7 @@
             math.complex(1, 0),
             math.complex(0, 0)
         ]);
-        let thisShowBasisStates = false;
+        let thisShowBasisStates = true;
         let thisShowPackedSphere = false;
         let thisCnot01 = false;
         let thisCnot02 = false;
@@ -427,7 +427,7 @@
             selectBox.addGroup(optionsGroup);
 
             const showGroup = new BABYLON.GUI.CheckboxGroup("Show");
-            showGroup.addCheckbox("Basis states", setShowBasisStates, false);
+            showGroup.addCheckbox("Basis states", setShowBasisStates, true);
             showGroup.addCheckbox("Packed sphere", setShowPackedSphere, false);
 
             selectBox.addGroup(showGroup);
