@@ -216,7 +216,8 @@
 
             BABYLON.SceneOptimizer.OptimizeAsync(scene0);
 
-            scene0.clearColor = new BABYLON.Color3( .75, .75, .75);
+            // scene0.clearColor = new BABYLON.Color3( .75, .75, .75);
+            scene0.clearColor = new BABYLON.Color3( 1.0, 1.0, 1.0);
 
             // Add a camera to the scene and attach it to the canvas
             const camera = new BABYLON.UniversalCamera("camera1", new BABYLON.Vector3(0, 0.2, -5.6), scene0);
