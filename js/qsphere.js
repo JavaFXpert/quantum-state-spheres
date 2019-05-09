@@ -161,10 +161,7 @@ class QSphere extends BABYLON.Mesh {
                 let numDivisions = math.combinations(numBits, weight);
                 let weightOrder = Hamming.weightIndex(stateIndex, numBits);
                 angle = (weight * 1.0 / numBits) * (Math.PI * 2) + (weightOrder * 2 * Math.PI / numDivisions);
-                if (weight > numBits / 2) {
-                    angle = Math.PI - angle - (2 * Math.PI / numDivisions);
-                }
-                else if ((weight == numBits / 2) && (weightOrder >= numDivisions / 2)) {
+                if ((weight > numBits / 2) || ((weight == numBits / 2) && (weightOrder >= numDivisions / 2))) {
                     angle = Math.PI - angle - (2 * Math.PI / numDivisions);
                 }
             }
